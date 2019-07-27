@@ -10,6 +10,11 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
 }).addTo(mymap);
 
+mymap.on('zoom', onZoom);
+
+function onZoom(event) {
+    console.log("Zoom value: " + mymap.getZoom());
+}
 
 
 /*

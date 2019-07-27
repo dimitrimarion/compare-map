@@ -14231,6 +14231,12 @@ _leaflet.default.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png
   id: 'mapbox.streets',
   accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
 }).addTo(mymap);
+
+mymap.on('zoom', onZoom);
+
+function onZoom(event) {
+  console.log("Zoom value: " + mymap.getZoom());
+}
 /*
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -14264,7 +14270,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61675" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62990" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
