@@ -1,0 +1,14 @@
+{
+  "name": "compare-map",
+  "version": "1.0.0",
+  "description": "Compare map at the same scale",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dimitri Marion",
+  "license": "ISC",
+  "dependencies": {
+    "leaflet": "^1.5.1"
+  }
+}
