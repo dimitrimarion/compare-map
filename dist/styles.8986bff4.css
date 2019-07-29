@@ -1,8 +1,10 @@
-#mapid { 
+.map { 
     height: 400px;
     width: 500px;
 }
 
-
+div {
+    margin-bottom: 2em;
+}
 
 /*# sourceMappingURL=/styles.8986bff4.css.map */

@@ -14223,25 +14223,63 @@ require("./node_modules/leaflet/dist/leaflet.css");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var mymap = _leaflet.default.map('mapid').setView([51.505, -0.09], 13);
+var firstMap = _leaflet.default.map('first-map').setView([51.505, -0.09], 13);
 
 _leaflet.default.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   maxZoom: 18,
   id: 'mapbox.streets',
   accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-}).addTo(mymap);
+}).addTo(firstMap);
 
-mymap.on('zoom', onZoom);
+var secondMap = _leaflet.default.map('second-map').setView([51.505, -0.09], 13);
 
-function onZoom(event) {
-  console.log("Zoom value: " + mymap.getZoom());
+_leaflet.default.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  maxZoom: 18,
+  id: 'mapbox.streets',
+  accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+}).addTo(secondMap);
+
+var mouseoverFirstMap = false;
+var mouseoverSecondMap = false;
+firstMap.on('zoomend', function () {
+  console.log("FIRST map zoomed");
+  /* Check if the mouse is over the map.
+     Avoid the case where the user zoom in and zoom out too rapidly
+     triggering a infinite zoom in/zoom out on both map */
+
+  if (mouseoverFirstMap) {
+    onZoomEnd(firstMap, secondMap);
+  }
+});
+firstMap.on('mouseover', function () {
+  mouseoverFirstMap = true;
+  console.log("mouseover");
+});
+firstMap.on('mouseout', function () {
+  mouseoverFirstMap = false;
+  console.log("mouseout");
+});
+secondMap.on('zoomend', function () {
+  console.log("SECOND map zoomed");
+
+  if (mouseoverSecondMap) {
+    onZoomEnd(secondMap, firstMap);
+  }
+});
+secondMap.on('mouseover', function () {
+  mouseoverSecondMap = true;
+  console.log("mouseover");
+});
+secondMap.on('mouseout', function () {
+  mouseoverSecondMap = false;
+  console.log("mouseout");
+});
+
+function onZoomEnd(zoomedMap, mapToZoom) {
+  mapToZoom.setZoom(zoomedMap.getZoom());
 }
-/*
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-}).addTo(mymap);
-*/
 },{"leaflet":"node_modules/leaflet/dist/leaflet-src.js","./node_modules/leaflet/dist/leaflet.css":"node_modules/leaflet/dist/leaflet.css"}],"../../../../../../../../home/dim/.nvm/versions/node/v10.6.0/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -14270,7 +14308,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62990" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63756" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

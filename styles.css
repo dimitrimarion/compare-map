@@ -1,5 +1,8 @@
-#mapid { 
+.map { 
     height: 400px;
     width: 500px;
 }
 
+div {
+    margin-bottom: 2em;
+}

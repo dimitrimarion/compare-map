@@ -1,1 +1,1 @@
-{"version":3,"sources":["styles.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA","file":"styles.8986bff4.css","sourceRoot":"..","sourcesContent":["#mapid { \r\n    height: 400px;\r\n    width: 500px;\r\n}\r\n\r\n"]}
+{"version":3,"sources":["styles.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"styles.8986bff4.css","sourceRoot":"..","sourcesContent":[".map { \r\n    height: 400px;\r\n    width: 500px;\r\n}\r\n\r\ndiv {\r\n    margin-bottom: 2em;\r\n}"]}
