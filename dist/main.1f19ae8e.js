@@ -16873,69 +16873,82 @@ require("hammerjs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var firstMap = _leaflet.default.map('first-map').setView([51.505, -0.09], 13);
+var TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+var ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 
-_leaflet.default.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  maxZoom: 18,
-  id: 'mapbox.streets',
-  accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-}).addTo(firstMap);
+function Map(element, coordinate, zoomLevel, tile) {
+  this.mouseover = false;
+  this.lMap = null;
+  this.element = element;
+  this.coordinate = coordinate;
+  this.zoomLevel = zoomLevel;
+  this.tile = tile;
+}
 
-var secondMap = _leaflet.default.map('second-map').setView([51.505, -0.09], 13);
+Map.prototype.createMap = function () {
+  this.lMap = _leaflet.default.map(this.element).setView(this.coordinate, this.zoomLevel);
+};
 
-_leaflet.default.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  maxZoom: 18,
-  id: 'mapbox.streets',
-  accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-}).addTo(secondMap);
+Map.prototype.createTileLayer = function () {
+  if (this.lMap != null) {
+    _leaflet.default.tileLayer(this.tile, {
+      attribution: ATTRIBUTION,
+      maxZoom: 18,
+      id: 'mapbox.streets',
+      accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+    }).addTo(this.lMap);
+  }
+};
 
-var mouseoverFirstMap = false;
-var mouseoverSecondMap = false;
-var pinch = false;
-firstMap.on('zoomend', function () {
-  console.log("FIRST map zoomed");
+Map.prototype.addListener = function (event, fct) {
+  this.lMap.on(event, fct);
+};
+
+Map.prototype.onZoomEnd = function (mapToZoom) {
+  this.zoomLevel = this.lMap.getZoom();
   /* Check if the mouse is over the map.
      Avoid the case where the user zoom in and zoom out too rapidly
      triggering a infinite zoom in/zoom out on both map 
   */
 
-  if (mouseoverFirstMap || pinch) {
-    onZoomEnd(firstMap, secondMap);
+  if (this.mouseover || pinch) {
+    mapToZoom.setZoom(this.zoomLevel);
   }
+};
+
+var pinch = false;
+var firstMap = new Map('first-map', [51.505, -0.09], 13, TILE);
+firstMap.createMap();
+firstMap.createTileLayer();
+firstMap.addListener('zoomend', function () {
+  firstMap.onZoomEnd(secondMap.lMap);
 });
-firstMap.on('mouseover', function () {
-  mouseoverFirstMap = true;
+firstMap.addListener('mouseover', function () {
+  firstMap.mouseover = true;
   console.log("mouseover");
 });
-firstMap.on('mouseout', function () {
-  mouseoverFirstMap = false;
+firstMap.addListener('mouseout', function () {
+  firstMap.mouseover = false;
   console.log("mouseout");
 });
-secondMap.on('zoomend', function () {
-  console.log("SECOND map zoomed");
-
-  if (mouseoverSecondMap || pinch) {
-    onZoomEnd(secondMap, firstMap);
-  }
+var secondMap = new Map('second-map', [51.505, -0.09], 13, TILE);
+secondMap.createMap();
+secondMap.createTileLayer();
+secondMap.addListener('zoomend', function () {
+  secondMap.onZoomEnd(firstMap.lMap);
 });
-secondMap.on('mouseover', function () {
-  mouseoverSecondMap = true;
+secondMap.addListener('mouseover', function () {
+  secondMap.mouseover = true;
   console.log("mouseover");
 });
-secondMap.on('mouseout', function () {
-  mouseoverSecondMap = false;
+secondMap.addListener('mouseout', function () {
+  secondMap.mouseover = false;
   console.log("mouseout");
 });
 
-function onZoomEnd(zoomedMap, mapToZoom) {
-  mapToZoom.setZoom(zoomedMap.getZoom());
-}
+var mapsSection = _leaflet.default.DomUtil.get("maps");
 
-var firstMapElement = _leaflet.default.DomUtil.get("maps");
-
-var mc = new Hammer(firstMapElement);
+var mc = new Hammer(mapsSection);
 mc.get('pinch').set({
   enable: true
 });
@@ -16970,7 +16983,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49273" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52253" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

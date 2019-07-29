@@ -1,76 +1,93 @@
-
 import L from "leaflet";
 import './node_modules/leaflet/dist/leaflet.css';
 import "hammerjs";
 
-const firstMap = L.map('first-map').setView([51.505, -0.09], 13);
+const TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+const ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 
-L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox.streets',
-    accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-}).addTo(firstMap);
+function Map(element, coordinate, zoomLevel, tile) {
+    this.mouseover = false;
+    this.lMap = null;
+    this.element = element;
+    this.coordinate = coordinate;
+    this.zoomLevel = zoomLevel;
+    this.tile = tile;
+}
 
-const secondMap = L.map('second-map').setView([51.505, -0.09], 13);
+Map.prototype.createMap = function() {
+    this.lMap = L.map(this.element).setView(this.coordinate, this.zoomLevel);
+};
 
-L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox.streets',
-    accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-}).addTo(secondMap);
+Map.prototype.createTileLayer = function() {
+    if (this.lMap != null) {
+        L.tileLayer(this.tile, {
+            attribution: ATTRIBUTION,
+            maxZoom: 18,
+            id: 'mapbox.streets',
+            accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+        }).addTo(this.lMap);
+    }
+};
 
-var mouseoverFirstMap = false;
-var mouseoverSecondMap = false;
-var pinch = false;
+Map.prototype.addListener = function(event, fct) {
+    this.lMap.on(event, fct);
+};
 
-firstMap.on('zoomend', function () {
-    console.log("FIRST map zoomed");
+Map.prototype.onZoomEnd = function(mapToZoom) {
+    this.zoomLevel = this.lMap.getZoom();
+
     /* Check if the mouse is over the map.
        Avoid the case where the user zoom in and zoom out too rapidly
        triggering a infinite zoom in/zoom out on both map 
     */
-    if (mouseoverFirstMap || pinch) {
-        onZoomEnd(firstMap, secondMap);
+    if(this.mouseover || pinch) {
+        mapToZoom.setZoom(this.zoomLevel);
     }
+};
+
+var pinch = false;
+
+const firstMap = new Map('first-map', [51.505, -0.09], 13, TILE);
+firstMap.createMap();
+firstMap.createTileLayer();
+
+firstMap.addListener('zoomend', function() {
+    firstMap.onZoomEnd(secondMap.lMap);
 });
 
-firstMap.on('mouseover', function () {
-    mouseoverFirstMap = true;
+firstMap.addListener('mouseover', function() {
+    firstMap.mouseover = true;
     console.log("mouseover");
 });
 
-firstMap.on('mouseout', function () {
-    mouseoverFirstMap = false;
+firstMap.addListener('mouseout', function () {
+    firstMap.mouseover = false;
     console.log("mouseout");
 });
 
-secondMap.on('zoomend', function () {
-    console.log("SECOND map zoomed");
-    if (mouseoverSecondMap || pinch) {
-        onZoomEnd(secondMap, firstMap);
-    }
+
+const secondMap = new Map('second-map', [51.505, -0.09], 13, TILE);
+secondMap.createMap();
+secondMap.createTileLayer();
+
+secondMap.addListener('zoomend', function() {
+    secondMap.onZoomEnd(firstMap.lMap);
 });
 
-secondMap.on('mouseover', function () {
-    mouseoverSecondMap = true;
+secondMap.addListener('mouseover', function() {
+    secondMap.mouseover = true;
     console.log("mouseover");
 });
 
-secondMap.on('mouseout', function () {
-    mouseoverSecondMap = false;
+secondMap.addListener('mouseout', function () {
+    secondMap.mouseover = false;
     console.log("mouseout");
 });
 
-function onZoomEnd(zoomedMap, mapToZoom) {
-    mapToZoom.setZoom(zoomedMap.getZoom());
-}
-
-const firstMapElement = L.DomUtil.get("maps");
-const mc = new Hammer(firstMapElement);
+const mapsSection = L.DomUtil.get("maps");
+const mc = new Hammer(mapsSection);
 mc.get('pinch').set({ enable: true });
 
-mc.on("pinch", function() {
+mc.on("pinch", function () {
     pinch = true;
 });
