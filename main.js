@@ -1,6 +1,8 @@
 import L from "leaflet";
 import './node_modules/leaflet/dist/leaflet.css';
 import "hammerjs";
+import "leaflet-control-geocoder";
+import './node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css'
 
 const TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
 const ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
@@ -65,10 +67,18 @@ firstMap.addListener('mouseout', function () {
     console.log("mouseout");
 });
 
+L.Control.geocoder({
+    geocoder: L.Control.Geocoder.nominatim()
+}).addTo(firstMap.lMap);
+
 
 const secondMap = new Map('second-map', [51.505, -0.09], 13, TILE);
 secondMap.createMap();
 secondMap.createTileLayer();
+
+L.Control.geocoder({
+    geocoder: L.Control.Geocoder.nominatim()
+}).addTo(secondMap.lMap);
 
 secondMap.addListener('zoomend', function() {
     secondMap.onZoomEnd(firstMap.lMap);
@@ -91,3 +101,5 @@ mc.get('pinch').set({ enable: true });
 mc.on("pinch", function () {
     pinch = true;
 });
+
+// TODO button to add map
