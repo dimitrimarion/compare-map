@@ -16,11 +16,11 @@ function Map(element, coordinate, zoomLevel, tile) {
     this.tile = tile;
 }
 
-Map.prototype.createMap = function() {
+Map.prototype.createMap = function () {
     this.lMap = L.map(this.element).setView(this.coordinate, this.zoomLevel);
 };
 
-Map.prototype.createTileLayer = function() {
+Map.prototype.createTileLayer = function () {
     if (this.lMap != null) {
         L.tileLayer(this.tile, {
             attribution: ATTRIBUTION,
@@ -31,33 +31,33 @@ Map.prototype.createTileLayer = function() {
     }
 };
 
-Map.prototype.addListener = function(event, fct) {
+Map.prototype.addListener = function (event, fct) {
     this.lMap.on(event, fct);
 };
 
-Map.prototype.onZoomEnd = function(mapToZoom) {
+Map.prototype.onZoomEnd = function (mapToZoom) {
     this.zoomLevel = this.lMap.getZoom();
 
     /* Check if the mouse is over the map.
        Avoid the case where the user zoom in and zoom out too rapidly
        triggering a infinite zoom in/zoom out on both map 
     */
-    if(this.mouseover || pinch) {
+    if (this.mouseover || pinch) {
         mapToZoom.setZoom(this.zoomLevel);
     }
 };
 
 var pinch = false;
 
-const firstMap = new Map('first-map', [51.505, -0.09], 13, TILE);
+const firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
 firstMap.createMap();
 firstMap.createTileLayer();
 
-firstMap.addListener('zoomend', function() {
+firstMap.addListener('zoomend', function () {
     firstMap.onZoomEnd(secondMap.lMap);
 });
 
-firstMap.addListener('mouseover', function() {
+firstMap.addListener('mouseover', function () {
     firstMap.mouseover = true;
     console.log("mouseover");
 });
@@ -67,12 +67,13 @@ firstMap.addListener('mouseout', function () {
     console.log("mouseout");
 });
 
+
 L.Control.geocoder({
     geocoder: L.Control.Geocoder.nominatim()
 }).addTo(firstMap.lMap);
 
 
-const secondMap = new Map('second-map', [51.505, -0.09], 13, TILE);
+const secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
 secondMap.createMap();
 secondMap.createTileLayer();
 
@@ -80,11 +81,12 @@ L.Control.geocoder({
     geocoder: L.Control.Geocoder.nominatim()
 }).addTo(secondMap.lMap);
 
-secondMap.addListener('zoomend', function() {
+
+secondMap.addListener('zoomend', function () {
     secondMap.onZoomEnd(firstMap.lMap);
 });
 
-secondMap.addListener('mouseover', function() {
+secondMap.addListener('mouseover', function () {
     secondMap.mouseover = true;
     console.log("mouseover");
 });
@@ -94,6 +96,7 @@ secondMap.addListener('mouseout', function () {
     console.log("mouseout");
 });
 
+
 const mapsSection = L.DomUtil.get("maps");
 const mc = new Hammer(mapsSection);
 mc.get('pinch').set({ enable: true });
@@ -102,4 +105,27 @@ mc.on("pinch", function () {
     pinch = true;
 });
 
+const button = document.querySelector("button");
+var mapId = 3;
+
+
+button.addEventListener("click", function () {
+
+    const mapp = document.createElement("div");
+    mapp.setAttribute("id", `map${mapId}`);
+    mapp.setAttribute("class", "map");
+
+    mapsSection.appendChild(mapp);
+
+    const map = new Map(`map${mapId}`, [51.505, -0.09], 13, TILE);
+    map.createMap();
+    map.createTileLayer();
+
+    mapId += 1;
+
+    if (mapId == 5) {
+        button.setAttribute("disabled", "");
+    }
+
+});
 // TODO button to add map

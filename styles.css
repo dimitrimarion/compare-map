@@ -1,5 +1,7 @@
 :root {
     font-size: calc(1vw + 0.6em);
+    --button-color: hsl(2, 59%, 54%);
+    --box-shadow: rgb(204, 204, 204);
     font-family: 'Roboto', sans-serif;
 }
 
@@ -16,15 +18,14 @@ body {
 
 main {
     height: 100vh;
-    max-width: 60em;
+    max-width: 40em;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     text-align: center;
 }
 
-main > h1 {
-    font-size: 2rem;
+.head {
     display: none;
 }
 
@@ -32,18 +33,38 @@ main > h1 {
     display: none;
 }
 
-h1, p {
-    margin-bottom: 0.5em;
-}
-
 @media (min-width: 70em) {
     main {
-        width: 70vw;
+        max-width: 70vw;
     }
 
-    main > h1 {
-        margin-top: 0.5em;
-        display: block;
+    .head {
+        margin: 0.5em 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .head h1 {
+        font-size: 2rem;
+    }
+
+    .head button {
+        background-color: var(--button-color);
+        margin-left: 4em;
+        border: none;
+        height: 70%;
+        width: 6em;
+        color: white;
+        border-radius: 0.2em;
+        cursor: pointer;
+        box-shadow: 0.2em 0.3em 0.3em var(--box-shadow);
+        font-size: 1.25rem;
+    }
+
+    .head button:disabled {
+        opacity: 0.5; 
+        cursor: not-allowed;
     }
 
     .desc {
@@ -64,10 +85,10 @@ h1, p {
 
 @media (min-width: 70em) {
     .maps {
-        flex-direction: row;
+        flex-flow: row wrap;
     }
 
     .map {
-        height: 50%;
+        height: calc(50% - 1em);
     }
 }

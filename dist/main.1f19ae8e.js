@@ -18760,7 +18760,7 @@ Map.prototype.onZoomEnd = function (mapToZoom) {
 };
 
 var pinch = false;
-var firstMap = new Map('first-map', [51.505, -0.09], 13, TILE);
+var firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
 firstMap.createMap();
 firstMap.createTileLayer();
 firstMap.addListener('zoomend', function () {
@@ -18779,7 +18779,7 @@ _leaflet.default.Control.geocoder({
   geocoder: _leaflet.default.Control.Geocoder.nominatim()
 }).addTo(firstMap.lMap);
 
-var secondMap = new Map('second-map', [51.505, -0.09], 13, TILE);
+var secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
 secondMap.createMap();
 secondMap.createTileLayer();
 
@@ -18807,6 +18807,22 @@ mc.get('pinch').set({
 });
 mc.on("pinch", function () {
   pinch = true;
+});
+var button = document.querySelector("button");
+var mapId = 3;
+button.addEventListener("click", function () {
+  var mapp = document.createElement("div");
+  mapp.setAttribute("id", "map".concat(mapId));
+  mapp.setAttribute("class", "map");
+  mapsSection.appendChild(mapp);
+  var map = new Map("map".concat(mapId), [51.505, -0.09], 13, TILE);
+  map.createMap();
+  map.createTileLayer();
+  mapId += 1;
+
+  if (mapId == 5) {
+    button.setAttribute("disabled", "");
+  }
 }); // TODO button to add map
 },{"leaflet":"node_modules/leaflet/dist/leaflet-src.js","./node_modules/leaflet/dist/leaflet.css":"node_modules/leaflet/dist/leaflet.css","hammerjs":"node_modules/hammerjs/hammer.js","leaflet-control-geocoder":"node_modules/leaflet-control-geocoder/src/index.js","./node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css":"node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css"}],"../../../../../../../../home/dim/.nvm/versions/node/v10.6.0/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -18836,7 +18852,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59848" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63768" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
