@@ -9,8 +9,10 @@
   "author": "Dimitri Marion",
   "license": "ISC",
   "dependencies": {
+    "geolib": "^3.0.4",
     "hammerjs": "^2.0.8",
     "leaflet": "^1.5.1",
+    "leaflet-clonelayer": "^1.0.7",
     "leaflet-control-geocoder": "^1.8.3",
     "leaflet-draw": "^1.0.4",
     "pubsub-js": "^1.7.0"

@@ -6,6 +6,10 @@ import "leaflet-control-geocoder";
 import './node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css'
 import PubSub from 'pubsub-js';
 import 'leaflet-draw';
+import cloneLayer from 'leaflet-clonelayer';
+import {
+    computeDestinationPoint, getRhumbLineBearing, getGreatCircleBearing, getDistance
+} from 'geolib';
 
 
 const TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
@@ -71,7 +75,56 @@ Map.prototype.sub = function (map) {
     PubSub.subscribe(DRAW_CREATED, function (msg, data) {
         if (map.element != data.element) {
             console.log("draw created");
-            map.drawnItems.addLayer(data.layer);
+
+            let layer = cloneLayer(data.layer);
+
+            let dataMapCenter = data.lMap.getCenter();
+            let mapCenter = map.lMap.getCenter();
+            let destinationPoint = null;
+
+            if (data.type == "circle") {
+
+                let latLongLayer = data.layer.getLatLng();
+                let distanceToCenter = data.layer.getLatLng().distanceTo(dataMapCenter);
+
+                destinationPoint = computeDestPoint(dataMapCenter, mapCenter,  distanceToCenter, latLongLayer);
+
+                if (destinationPoint != null) {
+                    layer.setLatLng(L.latLng(destinationPoint.latitude, destinationPoint.longitude));
+                }
+                /*
+                console.log("distance to center: " + distanceToCenter + " meters");
+                console.log("data map center: " + dataMapCenter.lat + " " + dataMapCenter.lng);
+                console.log("bearing: " + bearing);
+
+                console.log("center: " + mapCenter.lat + " " + mapCenter.lng);
+                console.log("destinationPoint: " + destinationPoint.latitude + " " + destinationPoint.longitude);*/
+            } else if (data.type == "rectangle") {
+                let bounds = layer.getBounds();
+
+                let northEast = bounds.getNorthEast();
+                let southWest = bounds.getSouthWest();
+
+                let northEastToCenter = northEast.distanceTo(dataMapCenter);
+
+
+                let northEastDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, northEastToCenter, northEast);
+                
+                let southWestToCenter = southWest.distanceTo(dataMapCenter);
+
+                let southWestDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, southWestToCenter, southWest);
+
+                layer.setBounds(L.latLngBounds(L.latLng(northEastDestinationPoint.latitude, northEastDestinationPoint.longitude)
+                , L.latLng(southWestDestinationPoint.latitude, southWestDestinationPoint.longitude)));
+
+            }
+
+
+
+
+            map.drawnItems.addLayer(layer);
+
+            // TODO add comment on different circle size    
         }
     });
 }
@@ -94,17 +147,29 @@ Map.prototype.addDrawControl = function () {
 
 }
 
-Map.prototype.drawCreated = function(event) {
+Map.prototype.drawCreated = function (event) {
     let layer = event.layer;
 
     this.drawnItems.addLayer(layer);
 
-    PubSub.publish(DRAW_CREATED, {element: this.element, layer: layer});
+    PubSub.publish(DRAW_CREATED, { element: this.element, layer: layer, lMap: this.lMap, type: event.layerType });
 };
 
+function computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, point) {
 
+    let bearing = getGreatCircleBearing(
+        { latitude: dataMapCenter.lat, longitude: dataMapCenter.lng },
+        { latitude: point.lat, longitude: point.lng }
+    )
 
+    let destinationPoint = computeDestinationPoint(
+        { latitude: mapCenter.lat, longitude: mapCenter.lng },
+        distanceToCenter,
+        bearing
+    );
 
+    return destinationPoint;
+}
 
 var pinch = false;
 var MY_TOPIC = 'zoom';
@@ -117,15 +182,15 @@ function createListener(map) {
 
     map.addListener('mouseover', function () {
         map.mouseover = true;
-        console.log("mouseover");
+        //console.log("mouseover");
     });
 
     map.addListener('mouseout', function () {
         map.mouseover = false;
-        console.log("mouseout");
+        //console.log("mouseout");
     });
 
-    map.addListener(L.Draw.Event.CREATED, function(event) {
+    map.addListener(L.Draw.Event.CREATED, function (event) {
         console.log("L.Draw.Event.CREATED");
         map.drawCreated(event);
     })
@@ -136,7 +201,7 @@ const firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
 firstMap.createMap();
 firstMap.createTileLayer();
 createListener(firstMap);
-//firstMap.sub(firstMap);
+firstMap.sub(firstMap);
 firstMap.addDrawControl();
 
 
@@ -149,7 +214,7 @@ const secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
 secondMap.createMap();
 secondMap.createTileLayer();
 createListener(secondMap);
-//secondMap.sub(secondMap);
+secondMap.sub(secondMap);
 secondMap.addDrawControl();
 
 L.Control.geocoder({
