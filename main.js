@@ -1,236 +1,25 @@
+'use strict'
 import L from "leaflet";
 import './node_modules/leaflet/dist/leaflet.css';
 import './node_modules/leaflet-draw/dist/leaflet.draw.css'
 import "hammerjs";
 import "leaflet-control-geocoder";
 import './node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css'
-import PubSub from 'pubsub-js';
 import 'leaflet-draw';
-import cloneLayer from 'leaflet-clonelayer';
-import {
-    computeDestinationPoint, getRhumbLineBearing, getGreatCircleBearing, getDistance
-} from 'geolib';
 
+import Map from './src/Map'
 
 const TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-const ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 
-function Map(element, coordinate, zoomLevel, tile) {
-    this.mouseover = false;
-    this.lMap = null;
-    this.drawnItems = null;
-    this.element = element;
-    this.coordinate = coordinate;
-    this.zoomLevel = zoomLevel;
-    this.tile = tile;
-    this.tileLayers = [];
-    this.baseLayers = {};
-}
+const firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
+firstMap.buildMap();
+bindListener(firstMap);
 
-Map.prototype.createMap = function () {
-    //this.lMap = L.map(this.element).setView(this.coordinate, this.zoomLevel);
-    this.lMap = L.map(this.element, {
-        center: this.coordinate,
-        zoom: this.zoomLevel,
-        layers: this.tileLayers
-    });
+const secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
+secondMap.buildMap();
+bindListener(secondMap);
 
-    let controlLayer = L.control.layers(this.baseLayers).addTo(this.lMap);
-    controlLayer.setPosition("bottomright");
-};
-
-Map.prototype.createTileLayer = function () {
-    /*
-    if (this.lMap != null) {
-        L.tileLayer(this.tile, {
-            attribution: ATTRIBUTION,
-            maxZoom: 18,
-            id: 'mapbox.streets',
-            accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-        }).addTo(this.lMap);
-    }*/
-    let streetsLayer = L.tileLayer(this.tile, {
-        attribution: ATTRIBUTION,
-        maxZoom: 18,
-        id: 'mapbox.streets',
-        accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-    });
-
-    let satelliteLayer = L.tileLayer(this.tile, {
-        attribution: ATTRIBUTION,
-        maxZoom: 18,
-        id: 'mapbox.satellite',
-        accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-    });
-
-
-    this.tileLayers.push(streetsLayer);
-
-    this.baseLayers = {
-        "Map": streetsLayer,
-        "Satellite": satelliteLayer
-    }
-
-};
-
-Map.prototype.addListener = function (event, fct) {
-    this.lMap.on(event, fct);
-};
-
-Map.prototype.onZoomEnd = function () {
-    // let zoom = map.getZoom();
-    console.log("this.zoomlevel: " + this.zoomLevel);
-    console.log("this.lMap.getZoom(): " + this.lMap.getZoom());
-
-    console.log("zoomend: " + this.element);
-    //if (this.mouseover || pinch) {
-    if (this.zoomLevel != this.lMap.getZoom()) {
-        this.zoomLevel = this.lMap.getZoom();
-        console.log("zoomend");
-        PubSub.publish(MY_TOPIC, this);
-    }
-};
-
-
-Map.prototype.sub = function (map) {
-    PubSub.subscribe(MY_TOPIC, function (msg, data) {
-        if (map.element != data.element) {
-            map.lMap.setZoom(data.zoomLevel);
-            map.zoomLevel = data.zoomLevel;
-        }
-    });
-
-    PubSub.subscribe(DRAW_CREATED, function (msg, data) {
-        if (map.element != data.element) {
-            console.log("draw created");
-
-            let layer = cloneLayer(data.layer);
-
-            let dataMapCenter = data.lMap.getCenter();
-            let mapCenter = map.lMap.getCenter();
-
-            if (data.type == "circle") {
-
-                let latLongLayer = data.layer.getLatLng();
-                let distanceToCenter = data.layer.getLatLng().distanceTo(dataMapCenter);
-
-                let destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLongLayer);
-
-                if (destinationPoint != null) {
-                    layer.setLatLng(L.latLng(destinationPoint.latitude, destinationPoint.longitude));
-                }
-                /*
-                console.log("distance to center: " + distanceToCenter + " meters");
-                console.log("data map center: " + dataMapCenter.lat + " " + dataMapCenter.lng);
-                console.log("bearing: " + bearing);
-
-                console.log("center: " + mapCenter.lat + " " + mapCenter.lng);
-                console.log("destinationPoint: " + destinationPoint.latitude + " " + destinationPoint.longitude);*/
-            } else if (data.type == "rectangle") {
-                let bounds = layer.getBounds();
-
-                let northEast = bounds.getNorthEast();
-                let southWest = bounds.getSouthWest();
-
-                let northEastToCenter = northEast.distanceTo(dataMapCenter);
-
-                let northEastDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, northEastToCenter, northEast);
-
-                let southWestToCenter = southWest.distanceTo(dataMapCenter);
-
-                let southWestDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, southWestToCenter, southWest);
-
-                layer.setBounds(L.latLngBounds(L.latLng(northEastDestinationPoint.latitude, northEastDestinationPoint.longitude)
-                    , L.latLng(southWestDestinationPoint.latitude, southWestDestinationPoint.longitude)));
-
-            } else if (data.type == "polyline") {
-                let latLngPoints = layer.getLatLngs();
-                let destLatLngPoints = [];
-
-                for (let latLng of latLngPoints) {
-                    let distanceToCenter = latLng.distanceTo(dataMapCenter);
-                    let destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLng);
-
-                    destLatLngPoints.push([destinationPoint.latitude, destinationPoint.longitude]);
-                }
-
-                layer.setLatLngs(destLatLngPoints);
-            } else if (data.type == "polygon") {
-                let latLngPoints = layer.getLatLngs();
-                let destLatLngPoints = [];
-
-                for (let latLngs of latLngPoints) {
-                    let destLatLng = [];
-                    for (let latLng of latLngs) {
-
-                        let distanceToCenter = latLng.distanceTo(dataMapCenter);
-                        let destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLng);
-
-                        destLatLng.push([destinationPoint.latitude, destinationPoint.longitude]);
-                    }
-                    destLatLngPoints.push(destLatLng);
-                }
-                layer.setLatLngs(destLatLngPoints);
-            }
-            map.drawnItems.addLayer(layer);
-        }
-
-        // TODO add comment on different circle size    
-    });
-}
-
-Map.prototype.addDrawControl = function () {
-
-    this.drawnItems = new L.FeatureGroup().addTo(this.lMap);
-
-    let options = {
-        position: 'bottomleft',
-        draw: {
-            marker: false,
-            circlemarker: false
-        },
-        edit: {
-            featureGroup: this.drawnItems,
-            remove: true
-        }
-    };
-
-
-    let drawControl = new L.Control.Draw(options);
-
-    this.lMap.addControl(drawControl);
-
-}
-
-Map.prototype.drawCreated = function (event) {
-    let layer = event.layer;
-
-    this.drawnItems.addLayer(layer);
-
-    PubSub.publish(DRAW_CREATED, { element: this.element, layer: layer, lMap: this.lMap, type: event.layerType });
-};
-
-function computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, point) {
-
-    let bearing = getGreatCircleBearing(
-        { latitude: dataMapCenter.lat, longitude: dataMapCenter.lng },
-        { latitude: point.lat, longitude: point.lng }
-    )
-
-    let destinationPoint = computeDestinationPoint(
-        { latitude: mapCenter.lat, longitude: mapCenter.lng },
-        distanceToCenter,
-        bearing
-    );
-
-    return destinationPoint;
-}
-
-var pinch = false;
-var MY_TOPIC = 'zoom';
-var DRAW_CREATED = 'draw_created';
-
-function createListener(map) {
+function bindListener(map) {
     map.addListener('zoomend', function () {
         map.onZoomEnd();
     });
@@ -240,32 +29,6 @@ function createListener(map) {
         map.drawCreated(event);
     })
 }
-
-
-const firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
-firstMap.createTileLayer();
-firstMap.createMap();
-createListener(firstMap);
-firstMap.sub(firstMap);
-firstMap.addDrawControl();
-
-
-L.Control.geocoder({
-    geocoder: L.Control.Geocoder.nominatim()
-}).addTo(firstMap.lMap);
-
-
-const secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
-secondMap.createTileLayer();
-secondMap.createMap();
-createListener(secondMap);
-secondMap.sub(secondMap);
-secondMap.addDrawControl();
-
-L.Control.geocoder({
-    geocoder: L.Control.Geocoder.nominatim(),
-}).addTo(secondMap.lMap);
-
 
 const mapsSection = L.DomUtil.get("maps");
 
@@ -281,15 +44,8 @@ button.addEventListener("click", function () {
     mapsSection.appendChild(mapp);
 
     const map = new Map(`map${mapId}`, [51.505, -0.09], 13, TILE);
-    map.createTileLayer();
-    map.createMap();
-    createListener(map);
-    map.sub(map);
-    map.addDrawControl();
-
-    L.Control.geocoder({
-        geocoder: L.Control.Geocoder.nominatim()
-    }).addTo(map.lMap);
+    map.buildMap();
+    bindListener(map);
 
     mapId += 1;
 
