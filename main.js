@@ -10,14 +10,17 @@ import 'leaflet-draw';
 import Map from './src/Map'
 
 const TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+let mapId = 1;
 
-const firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
+const firstMap = new Map(`map${mapId}`, [51.505, -0.09], 13, TILE);
 firstMap.buildMap();
 bindListener(firstMap);
+mapId++;
 
-const secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
+const secondMap = new Map(`map${mapId}`, [51.505, -0.09], 13, TILE);
 secondMap.buildMap();
 bindListener(secondMap);
+mapId++;
 
 function bindListener(map) {
     map.addListener('zoomend', function () {
@@ -25,15 +28,12 @@ function bindListener(map) {
     });
 
     map.addListener(L.Draw.Event.CREATED, function (event) {
-        console.log("L.Draw.Event.CREATED");
         map.drawCreated(event);
     })
 }
 
-const mapsSection = L.DomUtil.get("maps");
-
-const button = document.querySelector("button");
-var mapId = 3;
+const mapsSection = document.querySelector(".maps");
+const button = document.querySelector(".add-map");
 
 button.addEventListener("click", function () {
 
@@ -46,12 +46,10 @@ button.addEventListener("click", function () {
     const map = new Map(`map${mapId}`, [51.505, -0.09], 13, TILE);
     map.buildMap();
     bindListener(map);
-
-    mapId += 1;
+    mapId++;
 
     if (mapId == 5) {
         button.setAttribute("disabled", "");
     }
 
 });
-// TODO button to add map

@@ -29,10 +29,6 @@ main {
     display: none;
 }
 
-.desc {
-    display: none;
-}
-
 @media (min-width: 70em) {
     main {
         max-width: 70vw;

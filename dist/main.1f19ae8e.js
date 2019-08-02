@@ -19216,7 +19216,7 @@ var _geolib = require("geolib");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
-var MY_TOPIC = 'zoom';
+var ZOOM = 'zoom';
 var DRAW_CREATED = 'draw_created';
 
 function Map(element, coordinate, zoomLevel, tile) {
@@ -19269,12 +19269,12 @@ Map.prototype.onZoomEnd = function () {
   if (this.zoomLevel != this.lMap.getZoom()) {
     this.zoomLevel = this.lMap.getZoom();
 
-    _pubsubJs.default.publish(MY_TOPIC, this);
+    _pubsubJs.default.publish(ZOOM, this);
   }
 };
 
 Map.prototype.sub = function (map) {
-  _pubsubJs.default.subscribe(MY_TOPIC, function (msg, data) {
+  _pubsubJs.default.subscribe(ZOOM, function (msg, data) {
     if (map.element != data.element) {
       map.lMap.setZoom(data.zoomLevel);
       map.zoomLevel = data.zoomLevel;
@@ -19485,27 +19485,27 @@ var _Map = _interopRequireDefault(require("./src/Map"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var TILE = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
-var firstMap = new _Map.default('map1', [51.505, -0.09], 13, TILE);
+var mapId = 1;
+var firstMap = new _Map.default("map".concat(mapId), [51.505, -0.09], 13, TILE);
 firstMap.buildMap();
 bindListener(firstMap);
-var secondMap = new _Map.default('map2', [51.505, -0.09], 13, TILE);
+mapId++;
+var secondMap = new _Map.default("map".concat(mapId), [51.505, -0.09], 13, TILE);
 secondMap.buildMap();
 bindListener(secondMap);
+mapId++;
 
 function bindListener(map) {
   map.addListener('zoomend', function () {
     map.onZoomEnd();
   });
   map.addListener(_leaflet.default.Draw.Event.CREATED, function (event) {
-    console.log("L.Draw.Event.CREATED");
     map.drawCreated(event);
   });
 }
 
-var mapsSection = _leaflet.default.DomUtil.get("maps");
-
-var button = document.querySelector("button");
-var mapId = 3;
+var mapsSection = document.querySelector(".maps");
+var button = document.querySelector(".add-map");
 button.addEventListener("click", function () {
   var mapp = document.createElement("div");
   mapp.setAttribute("id", "map".concat(mapId));
@@ -19514,12 +19514,12 @@ button.addEventListener("click", function () {
   var map = new _Map.default("map".concat(mapId), [51.505, -0.09], 13, TILE);
   map.buildMap();
   bindListener(map);
-  mapId += 1;
+  mapId++;
 
   if (mapId == 5) {
     button.setAttribute("disabled", "");
   }
-}); // TODO button to add map
+});
 },{"leaflet":"node_modules/leaflet/dist/leaflet-src.js","./node_modules/leaflet/dist/leaflet.css":"node_modules/leaflet/dist/leaflet.css","./node_modules/leaflet-draw/dist/leaflet.draw.css":"node_modules/leaflet-draw/dist/leaflet.draw.css","hammerjs":"node_modules/hammerjs/hammer.js","leaflet-control-geocoder":"node_modules/leaflet-control-geocoder/src/index.js","./node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css":"node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css","leaflet-draw":"node_modules/leaflet-draw/dist/leaflet.draw.js","./src/Map":"src/Map.js"}],"../../../../../../../../home/dim/.nvm/versions/node/v10.6.0/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -19548,7 +19548,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65350" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50113" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -5,7 +5,7 @@ import { computeDestinationPoint, getGreatCircleBearing } from 'geolib';
 
 
 const ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
-var MY_TOPIC = 'zoom';
+var ZOOM = 'zoom';
 var DRAW_CREATED = 'draw_created';
 
 
@@ -65,13 +65,13 @@ Map.prototype.onZoomEnd = function () {
 
     if (this.zoomLevel != this.lMap.getZoom()) {
         this.zoomLevel = this.lMap.getZoom();
-        PubSub.publish(MY_TOPIC, this);
+        PubSub.publish(ZOOM, this);
     }
 };
 
 
 Map.prototype.sub = function (map) {
-    PubSub.subscribe(MY_TOPIC, function (msg, data) {
+    PubSub.subscribe(ZOOM, function (msg, data) {
         if (map.element != data.element) {
             map.lMap.setZoom(data.zoomLevel);
             map.zoomLevel = data.zoomLevel;
