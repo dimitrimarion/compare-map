@@ -86,7 +86,7 @@ Map.prototype.sub = function (map) {
                 let latLongLayer = data.layer.getLatLng();
                 let distanceToCenter = data.layer.getLatLng().distanceTo(dataMapCenter);
 
-                let destinationPoint = computeDestPoint(dataMapCenter, mapCenter,  distanceToCenter, latLongLayer);
+                let destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLongLayer);
 
                 if (destinationPoint != null) {
                     layer.setLatLng(L.latLng(destinationPoint.latitude, destinationPoint.longitude));
@@ -113,9 +113,9 @@ Map.prototype.sub = function (map) {
                 let southWestDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, southWestToCenter, southWest);
 
                 layer.setBounds(L.latLngBounds(L.latLng(northEastDestinationPoint.latitude, northEastDestinationPoint.longitude)
-                , L.latLng(southWestDestinationPoint.latitude, southWestDestinationPoint.longitude)));
+                    , L.latLng(southWestDestinationPoint.latitude, southWestDestinationPoint.longitude)));
 
-            } else if(data.type == "polyline") {
+            } else if (data.type == "polyline") {
                 let latLngPoints = layer.getLatLngs();
                 let destLatLngPoints = [];
 
@@ -127,12 +127,27 @@ Map.prototype.sub = function (map) {
                 }
 
                 layer.setLatLngs(destLatLngPoints);
+            } else if (data.type == "polygon") {
+                let latLngPoints = layer.getLatLngs();
+                let destLatLngPoints = [];
+
+                for (let latLngs of latLngPoints) {
+                    let destLatLng = [];
+                    for (let latLng of latLngs) {
+
+                        let distanceToCenter = latLng.distanceTo(dataMapCenter);
+                        let destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLng);
+
+                        destLatLng.push([destinationPoint.latitude, destinationPoint.longitude]);
+                    }
+                    destLatLngPoints.push(destLatLng);
+                }
+                layer.setLatLngs(destLatLngPoints);
             }
-
             map.drawnItems.addLayer(layer);
-
-            // TODO add comment on different circle size    
         }
+
+        // TODO add comment on different circle size    
     });
 }
 

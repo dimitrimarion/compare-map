@@ -19355,10 +19355,70 @@ Map.prototype.sub = function (map) {
         }
 
         layer.setLatLngs(destLatLngPoints);
+      } else if (data.type == "polygon") {
+        var _latLngPoints = layer.getLatLngs();
+
+        var _destLatLngPoints = [];
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = _latLngPoints[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var latLngs = _step2.value;
+            var destLatLng = [];
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+              for (var _iterator3 = latLngs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                var _latLng = _step3.value;
+
+                var _distanceToCenter2 = _latLng.distanceTo(dataMapCenter);
+
+                var _destinationPoint2 = computeDestPoint(dataMapCenter, mapCenter, _distanceToCenter2, _latLng);
+
+                destLatLng.push([_destinationPoint2.latitude, _destinationPoint2.longitude]);
+              }
+            } catch (err) {
+              _didIteratorError3 = true;
+              _iteratorError3 = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
+                  _iterator3.return();
+                }
+              } finally {
+                if (_didIteratorError3) {
+                  throw _iteratorError3;
+                }
+              }
+            }
+
+            _destLatLngPoints.push(destLatLng);
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+
+        layer.setLatLngs(_destLatLngPoints);
       }
 
-      map.drawnItems.addLayer(layer); // TODO add comment on different circle size    
-    }
+      map.drawnItems.addLayer(layer);
+    } // TODO add comment on different circle size    
+
   });
 };
 
@@ -19504,7 +19564,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65024" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50935" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
