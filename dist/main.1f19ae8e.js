@@ -19297,12 +19297,11 @@ Map.prototype.sub = function (map) {
       var layer = (0, _leafletClonelayer.default)(data.layer);
       var dataMapCenter = data.lMap.getCenter();
       var mapCenter = map.lMap.getCenter();
-      var destinationPoint = null;
 
       if (data.type == "circle") {
         var latLongLayer = data.layer.getLatLng();
         var distanceToCenter = data.layer.getLatLng().distanceTo(dataMapCenter);
-        destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLongLayer);
+        var destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLongLayer);
 
         if (destinationPoint != null) {
           layer.setLatLng(_leaflet.default.latLng(destinationPoint.latitude, destinationPoint.longitude));
@@ -19323,6 +19322,39 @@ Map.prototype.sub = function (map) {
         var southWestToCenter = southWest.distanceTo(dataMapCenter);
         var southWestDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, southWestToCenter, southWest);
         layer.setBounds(_leaflet.default.latLngBounds(_leaflet.default.latLng(northEastDestinationPoint.latitude, northEastDestinationPoint.longitude), _leaflet.default.latLng(southWestDestinationPoint.latitude, southWestDestinationPoint.longitude)));
+      } else if (data.type == "polyline") {
+        var latLngPoints = layer.getLatLngs();
+        var destLatLngPoints = [];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = latLngPoints[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var latLng = _step.value;
+
+            var _distanceToCenter = latLng.distanceTo(dataMapCenter);
+
+            var _destinationPoint = computeDestPoint(dataMapCenter, mapCenter, _distanceToCenter, latLng);
+
+            destLatLngPoints.push([_destinationPoint.latitude, _destinationPoint.longitude]);
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+
+        layer.setLatLngs(destLatLngPoints);
       }
 
       map.drawnItems.addLayer(layer); // TODO add comment on different circle size    
@@ -19472,7 +19504,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59890" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65024" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

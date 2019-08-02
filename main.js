@@ -80,14 +80,13 @@ Map.prototype.sub = function (map) {
 
             let dataMapCenter = data.lMap.getCenter();
             let mapCenter = map.lMap.getCenter();
-            let destinationPoint = null;
 
             if (data.type == "circle") {
 
                 let latLongLayer = data.layer.getLatLng();
                 let distanceToCenter = data.layer.getLatLng().distanceTo(dataMapCenter);
 
-                destinationPoint = computeDestPoint(dataMapCenter, mapCenter,  distanceToCenter, latLongLayer);
+                let destinationPoint = computeDestPoint(dataMapCenter, mapCenter,  distanceToCenter, latLongLayer);
 
                 if (destinationPoint != null) {
                     layer.setLatLng(L.latLng(destinationPoint.latitude, destinationPoint.longitude));
@@ -107,9 +106,8 @@ Map.prototype.sub = function (map) {
 
                 let northEastToCenter = northEast.distanceTo(dataMapCenter);
 
-
                 let northEastDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, northEastToCenter, northEast);
-                
+
                 let southWestToCenter = southWest.distanceTo(dataMapCenter);
 
                 let southWestDestinationPoint = computeDestPoint(dataMapCenter, mapCenter, southWestToCenter, southWest);
@@ -117,10 +115,19 @@ Map.prototype.sub = function (map) {
                 layer.setBounds(L.latLngBounds(L.latLng(northEastDestinationPoint.latitude, northEastDestinationPoint.longitude)
                 , L.latLng(southWestDestinationPoint.latitude, southWestDestinationPoint.longitude)));
 
+            } else if(data.type == "polyline") {
+                let latLngPoints = layer.getLatLngs();
+                let destLatLngPoints = [];
+
+                for (let latLng of latLngPoints) {
+                    let distanceToCenter = latLng.distanceTo(dataMapCenter);
+                    let destinationPoint = computeDestPoint(dataMapCenter, mapCenter, distanceToCenter, latLng);
+
+                    destLatLngPoints.push([destinationPoint.latitude, destinationPoint.longitude]);
+                }
+
+                layer.setLatLngs(destLatLngPoints);
             }
-
-
-
 
             map.drawnItems.addLayer(layer);
 
