@@ -156,6 +156,11 @@ Map.prototype.addDrawControl = function () {
     this.drawnItems = new L.FeatureGroup().addTo(this.lMap);
 
     let options = {
+        position: 'bottomleft',
+        draw: {
+            marker: false,
+            circlemarker: false
+        },
         edit: {
             featureGroup: this.drawnItems,
             remove: true
