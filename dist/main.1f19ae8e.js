@@ -19294,31 +19294,23 @@ Map.prototype.addListener = function (event, fct) {
 
 Map.prototype.onZoomEnd = function () {
   // let zoom = map.getZoom();
-  this.zoomLevel = this.lMap.getZoom();
-  /* Check if the mouse is over the map.
-     Avoid the case where the user zoom in and zoom out too rapidly
-     triggering a infinite zoom in/zoom out on both map 
-  */
+  console.log("this.zoomlevel: " + this.zoomLevel);
+  console.log("this.lMap.getZoom(): " + this.lMap.getZoom());
+  console.log("zoomend: " + this.element); //if (this.mouseover || pinch) {
 
-  console.log("zoomend: " + this.element);
-
-  if (this.mouseover || pinch) {
+  if (this.zoomLevel != this.lMap.getZoom()) {
+    this.zoomLevel = this.lMap.getZoom();
     console.log("zoomend");
 
-    _pubsubJs.default.publish(MY_TOPIC, this); //mapToZoom.lMap.setZoom(this.zoomLevel);
-
+    _pubsubJs.default.publish(MY_TOPIC, this);
   }
-  /*if (map.lMap !== this.lMap) {
-      this.lMap.setZoomLevel(zoom);
-      this.zoomLevel = zoom;
-  }*/
-
 };
 
 Map.prototype.sub = function (map) {
   _pubsubJs.default.subscribe(MY_TOPIC, function (msg, data) {
     if (map.element != data.element) {
       map.lMap.setZoom(data.zoomLevel);
+      map.zoomLevel = data.zoomLevel;
     }
   });
 
@@ -19505,12 +19497,6 @@ function createListener(map) {
   map.addListener('zoomend', function () {
     map.onZoomEnd();
   });
-  map.addListener('mouseover', function () {
-    map.mouseover = true; //console.log("mouseover");
-  });
-  map.addListener('mouseout', function () {
-    map.mouseover = false; //console.log("mouseout");
-  });
   map.addListener(_leaflet.default.Draw.Event.CREATED, function (event) {
     console.log("L.Draw.Event.CREATED");
     map.drawCreated(event);
@@ -19541,13 +19527,6 @@ _leaflet.default.Control.geocoder({
 
 var mapsSection = _leaflet.default.DomUtil.get("maps");
 
-var mc = new Hammer(mapsSection);
-mc.get('pinch').set({
-  enable: true
-});
-mc.on("pinch", function () {
-  pinch = true;
-});
 var button = document.querySelector("button");
 var mapId = 3;
 button.addEventListener("click", function () {
@@ -19600,7 +19579,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51720" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59970" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
