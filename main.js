@@ -23,13 +23,24 @@ function Map(element, coordinate, zoomLevel, tile) {
     this.coordinate = coordinate;
     this.zoomLevel = zoomLevel;
     this.tile = tile;
+    this.tileLayers = [];
+    this.baseLayers = {};
 }
 
 Map.prototype.createMap = function () {
-    this.lMap = L.map(this.element).setView(this.coordinate, this.zoomLevel);
+    //this.lMap = L.map(this.element).setView(this.coordinate, this.zoomLevel);
+    this.lMap = L.map(this.element, {
+        center: this.coordinate,
+		zoom: this.zoomLevel,
+		layers: this.tileLayers
+    });
+
+    let controlLayer = L.control.layers(this.baseLayers).addTo(this.lMap);
+    controlLayer.setPosition("bottomright");
 };
 
 Map.prototype.createTileLayer = function () {
+    /*
     if (this.lMap != null) {
         L.tileLayer(this.tile, {
             attribution: ATTRIBUTION,
@@ -37,7 +48,29 @@ Map.prototype.createTileLayer = function () {
             id: 'mapbox.streets',
             accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
         }).addTo(this.lMap);
+    }*/
+    let streetsLayer = L.tileLayer(this.tile, {
+        attribution: ATTRIBUTION,
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+    });
+
+    let satelliteLayer = L.tileLayer(this.tile, {
+        attribution: ATTRIBUTION,
+        maxZoom: 18,
+        id: 'mapbox.satellite',
+        accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+    });
+
+
+    this.tileLayers.push(streetsLayer);
+
+    this.baseLayers = {
+        "Map": streetsLayer,
+        "Satellite": satelliteLayer
     }
+
 };
 
 Map.prototype.addListener = function (event, fct) {
@@ -225,8 +258,8 @@ function createListener(map) {
 
 
 const firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
-firstMap.createMap();
 firstMap.createTileLayer();
+firstMap.createMap();
 createListener(firstMap);
 firstMap.sub(firstMap);
 firstMap.addDrawControl();
@@ -238,14 +271,14 @@ L.Control.geocoder({
 
 
 const secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
-secondMap.createMap();
 secondMap.createTileLayer();
+secondMap.createMap();
 createListener(secondMap);
 secondMap.sub(secondMap);
 secondMap.addDrawControl();
 
 L.Control.geocoder({
-    geocoder: L.Control.Geocoder.nominatim()
+    geocoder: L.Control.Geocoder.nominatim(),
 }).addTo(secondMap.lMap);
 
 
@@ -270,8 +303,8 @@ button.addEventListener("click", function () {
     mapsSection.appendChild(mapp);
 
     const map = new Map(`map${mapId}`, [51.505, -0.09], 13, TILE);
-    map.createMap();
     map.createTileLayer();
+    map.createMap();
     createListener(map);
     map.sub(map);
     map.addDrawControl();

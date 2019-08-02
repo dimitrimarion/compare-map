@@ -19240,21 +19240,52 @@ function Map(element, coordinate, zoomLevel, tile) {
   this.coordinate = coordinate;
   this.zoomLevel = zoomLevel;
   this.tile = tile;
+  this.tileLayers = [];
+  this.baseLayers = {};
 }
 
 Map.prototype.createMap = function () {
-  this.lMap = _leaflet.default.map(this.element).setView(this.coordinate, this.zoomLevel);
+  //this.lMap = L.map(this.element).setView(this.coordinate, this.zoomLevel);
+  this.lMap = _leaflet.default.map(this.element, {
+    center: this.coordinate,
+    zoom: this.zoomLevel,
+    layers: this.tileLayers
+  });
+
+  var controlLayer = _leaflet.default.control.layers(this.baseLayers).addTo(this.lMap);
+
+  controlLayer.setPosition("bottomright");
 };
 
 Map.prototype.createTileLayer = function () {
+  /*
   if (this.lMap != null) {
-    _leaflet.default.tileLayer(this.tile, {
-      attribution: ATTRIBUTION,
-      maxZoom: 18,
-      id: 'mapbox.streets',
-      accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
-    }).addTo(this.lMap);
-  }
+      L.tileLayer(this.tile, {
+          attribution: ATTRIBUTION,
+          maxZoom: 18,
+          id: 'mapbox.streets',
+          accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+      }).addTo(this.lMap);
+  }*/
+  var streetsLayer = _leaflet.default.tileLayer(this.tile, {
+    attribution: ATTRIBUTION,
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+  });
+
+  var satelliteLayer = _leaflet.default.tileLayer(this.tile, {
+    attribution: ATTRIBUTION,
+    maxZoom: 18,
+    id: 'mapbox.satellite',
+    accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+  });
+
+  this.tileLayers.push(streetsLayer);
+  this.baseLayers = {
+    "Map": streetsLayer,
+    "Satellite": satelliteLayer
+  };
 };
 
 Map.prototype.addListener = function (event, fct) {
@@ -19487,8 +19518,8 @@ function createListener(map) {
 }
 
 var firstMap = new Map('map1', [51.505, -0.09], 13, TILE);
-firstMap.createMap();
 firstMap.createTileLayer();
+firstMap.createMap();
 createListener(firstMap);
 firstMap.sub(firstMap);
 firstMap.addDrawControl();
@@ -19498,8 +19529,8 @@ _leaflet.default.Control.geocoder({
 }).addTo(firstMap.lMap);
 
 var secondMap = new Map('map2', [51.505, -0.09], 13, TILE);
-secondMap.createMap();
 secondMap.createTileLayer();
+secondMap.createMap();
 createListener(secondMap);
 secondMap.sub(secondMap);
 secondMap.addDrawControl();
@@ -19525,8 +19556,8 @@ button.addEventListener("click", function () {
   mapp.setAttribute("class", "map");
   mapsSection.appendChild(mapp);
   var map = new Map("map".concat(mapId), [51.505, -0.09], 13, TILE);
-  map.createMap();
   map.createTileLayer();
+  map.createMap();
   createListener(map);
   map.sub(map);
   map.addDrawControl();
@@ -19569,7 +19600,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51503" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51720" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
