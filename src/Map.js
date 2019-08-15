@@ -144,8 +144,6 @@ Map.prototype.sub = function (map) {
             }
             map.drawnItems.addLayer(layer);
         }
-
-        // TODO add comment on different circle size    
     });
 }
 
@@ -181,7 +179,8 @@ Map.prototype.drawCreated = function (event) {
 
 Map.prototype.createGeoCoder = function () {
     L.Control.geocoder({
-        geocoder: L.Control.Geocoder.nominatim()
+        geocoder: L.Control.Geocoder.mapbox(
+            "pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ")
     }).addTo(this.lMap);
 }
 

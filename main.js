@@ -2,7 +2,6 @@
 import L from "leaflet";
 import './node_modules/leaflet/dist/leaflet.css';
 import './node_modules/leaflet-draw/dist/leaflet.draw.css'
-import "hammerjs";
 import "leaflet-control-geocoder";
 import './node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css'
 import 'leaflet-draw';
