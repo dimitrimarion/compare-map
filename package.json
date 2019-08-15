@@ -16,5 +16,8 @@
     "leaflet-control-geocoder": "^1.8.3",
     "leaflet-draw": "^1.0.4",
     "pubsub-js": "^1.7.0"
+  },
+  "devDependencies": {
+    "cssnano": "^4.1.10"
   }
 }
