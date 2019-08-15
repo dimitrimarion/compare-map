@@ -7,6 +7,7 @@ import { computeDestinationPoint, getGreatCircleBearing } from 'geolib';
 const ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 var ZOOM = 'zoom';
 var DRAW_CREATED = 'draw_created';
+const API_KEY = process.env.API_KEY;
 
 
 function Map(element, coordinate, zoomLevel, tile) {
@@ -37,14 +38,14 @@ Map.prototype.createTileLayer = function () {
         attribution: ATTRIBUTION,
         maxZoom: 18,
         id: 'mapbox.streets',
-        accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+        accessToken: API_KEY
     });
 
     let satelliteLayer = L.tileLayer(this.tile, {
         attribution: ATTRIBUTION,
         maxZoom: 18,
         id: 'mapbox.satellite',
-        accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+        accessToken: API_KEY
     });
 
 
@@ -179,8 +180,7 @@ Map.prototype.drawCreated = function (event) {
 
 Map.prototype.createGeoCoder = function () {
     L.Control.geocoder({
-        geocoder: L.Control.Geocoder.mapbox(
-            "pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ")
+        geocoder: L.Control.Geocoder.mapbox(API_KEY)
     }).addTo(this.lMap);
 }
 

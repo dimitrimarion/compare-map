@@ -16570,6 +16570,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var ATTRIBUTION = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 var ZOOM = 'zoom';
 var DRAW_CREATED = 'draw_created';
+var API_KEY = "pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ";
 
 function Map(element, coordinate, zoomLevel, tile) {
   this.mouseover = false;
@@ -16598,13 +16599,13 @@ Map.prototype.createTileLayer = function () {
     attribution: ATTRIBUTION,
     maxZoom: 18,
     id: 'mapbox.streets',
-    accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+    accessToken: API_KEY
   });
   var satelliteLayer = L.tileLayer(this.tile, {
     attribution: ATTRIBUTION,
     maxZoom: 18,
     id: 'mapbox.satellite',
-    accessToken: 'pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ'
+    accessToken: API_KEY
   });
   this.tileLayers.push(streetsLayer);
   this.baseLayers = {
@@ -16786,7 +16787,7 @@ Map.prototype.drawCreated = function (event) {
 
 Map.prototype.createGeoCoder = function () {
   L.Control.geocoder({
-    geocoder: L.Control.Geocoder.mapbox("pk.eyJ1IjoiZG1hcmlvbiIsImEiOiJjanlsb3owdmQwOXh1M21ydGtvbjA1MXRzIn0.gpxMygro3oXIlpxHK_ToYQ")
+    geocoder: L.Control.Geocoder.mapbox(API_KEY)
   }).addTo(this.lMap);
 };
 
@@ -16897,7 +16898,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50005" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50380" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
