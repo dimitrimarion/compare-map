@@ -1,6 +1,6 @@
 # compare-map
 
-This app lets you compare maps on the same scale. You can also draw shapes on the map.
+This app lets you compare maps on the same scale. You can also draw shapes on the map. You can try it here: [https://www.dimitrimarion.com/comparemap/](https://www.dimitrimarion.com/comparemap/)
 
 ![Image of Yaktocat](images/screen-map.png)
 
