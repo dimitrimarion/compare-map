@@ -14,6 +14,6 @@ Install dependencies:
 
 ```$ npm install```
 
-Build the app and run the server with `parcel`:
+Build the app and start the server with `parcel`:
 
 `$ parcel index.html`
